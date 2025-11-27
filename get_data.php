@@ -1,15 +1,21 @@
 <?php
+require 'db_config.php'; 
 header('Content-Type: application/json');
-$file_path = 'collapse_data.json';
 
-if (file_exists($file_path)) {
-    $data = file_get_contents($file_path);
-    if (trim($data) === '' || json_decode($data) === null) {
-        echo json_encode([]); 
-    } else {
-        echo $data;
+$response = [];
+
+$result = $conn->query("SELECT title, content FROM collapse_items ORDER BY id ASC");
+
+if ($result && $result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $response[] = [
+            'title' => $row['title'],
+            'content' => $row['content']
+        ];
     }
-} else {
-    echo json_encode([]); 
 }
+
+$conn->close();
+
+echo json_encode($response);
 ?>
