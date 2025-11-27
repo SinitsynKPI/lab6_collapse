@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Варіант 10 - Створення Collapse Об'єктів</title>
+    <link rel="stylesheet" href="grid_phone.css">
+</head>
+<body>
+    <div class="grid-container">
+        <div class="item item1">
+            <h2>Створення набору об'єктів "Collapse" (Варіант 10)</h2>
+        </div>
+
+        <div class="item item2">
+            <p>Фентезі – це жанр, де магія оживає на сторінках книг.</p>
+            <img src="tolkin.jpg">
+            <p>Однією з найпопулярніших серій є "Володар Перснів" Дж.Р.Р. Толкіна.</p>
+        </div>
+
+        <div class="item item3">
+            <div id="collapse-form-container">
+                <h3>Створити Набір Collapse Об'єктів</h3>
+                <p>Кількість елементів, їхній заголовок та контент задає користувач.</p>
+
+                <div id="collapse-list">
+                </div>
+
+                <button type="button" onclick="addCollapseItem()" style="margin: 10px 0; padding: 10px;">Додати Collapse Елемент</button>
+                <button type="button" onclick="saveCollapseData()" style="padding: 10px;">Зберегти Дані на Сервер</button>
+                <p id="status-message" style="margin-top: 15px; font-weight: bold;"></p>
+            </div>
+        </div>
+
+        <div class="item item4">
+            <nav>
+                <ul>
+                    <li><a href="collapse_creator.html">Створення Collapse (Сторінка 1)</a></li>
+                    <li><a href="collapse_viewer.html">Перегляд Collapse (Сторінка 2)</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="item item5">
+            <p>"Гра Престолів" Джорджа Р.Р. Мартіна – це темне фентезі.</p>
+            <img src="GameOfThrones.jpg">
+            <p>Політичні інтриги та боротьба за залізний трон.</p>
+        </div>
+        <div class="item item6">
+            <p>"Відьмак" Анджея Сапковського – польська фентезі-класика.</p>
+            <img src="witcher.jpg">
+            <p>Історія про Геральта з Рівії – професійного мисливця на чудовиськ.</p>
+        </div>
+
+        <div class="item item7">
+            <p>Футер сайту. Контактна інформація та копірайт.</p>
+        </div>
+    </div>
+
+    <script>
+    let itemCounter = 0; 
+    function addCollapseItem() {
+      const list = document.getElementById('collapse-list');
+      const index = itemCounter++;
+
+      const newItem = document.createElement('div');
+      newItem.className = 'collapse-item-form';
+      newItem.innerHTML = `
+        <h4 style="margin-top: 15px;">Елемент Collapse #${index + 1}</h4>
+        <label for="title-${index}">Заголовок:</label>
+        <input type="text" id="title-${index}" class="collapse-title" value="Заголовок ${index + 1}" required style="width: 90%; padding: 5px;"><br><br>
+
+        <label for="content-${index}">Контент:</label>
+        <textarea id="content-${index}" class="collapse-content" rows="3" required style="width: 90%; padding: 5px;">Текст, що згортається для елемента ${index + 1}.</textarea><br>
+
+        <button type="button" onclick="this.parentElement.remove();" style="margin-top: 5px;">Видалити Елемент</button>
+        <hr style="margin: 15px 0; border-top: 1px solid #ddd;">
+      `;
+      list.appendChild(newItem);
+    }
+
+    function collectData() {
+      const data = [];
+      const items = document.querySelectorAll('.collapse-item-form');
+      items.forEach(item => {
+        const titleInput = item.querySelector('.collapse-title');
+        const contentTextarea = item.querySelector('.collapse-content');
+
+        if (titleInput && contentTextarea) {
+          data.push({
+            title: titleInput.value,
+            content: contentTextarea.value
+          });
+        }
+      });
+      return data;
+    }
+
+    function saveCollapseData() {
+      const data = collectData();
+      const statusMessage = document.getElementById('status-message');
+
+      if (data.length === 0) {
+          statusMessage.textContent = 'Неможливо зберегти порожній набір об\'єктів.';
+          statusMessage.style.color = 'orange';
+          return;
+      }
+
+      statusMessage.textContent = '🔄 Зберігання даних...';
+      statusMessage.style.color = 'blue';
+
+      fetch('save_data.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          statusMessage.textContent = '✅ Дані успішно збережено на сервері!';
+          statusMessage.style.color = 'green';
+        } else {
+          statusMessage.textContent = `❌ Помилка збереження: ${result.message || 'Невідома помилка'}`;
+          statusMessage.style.color = 'red';
+        }
+      })
+      .catch((error) => {
+        statusMessage.textContent = `❌ Помилка мережі/сервера: ${error.message}`;
+        statusMessage.style.color = 'red';
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', addCollapseItem);
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Варіант 10 - Перегляд Collapse Об'єктів</title>
+    <link rel="stylesheet" href="grid_phone.css">
+
+    <style>
+        .custom-collapse-header {
+            background-color: #f1f1f1;
+            color: #333;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            transition: background-color 0.4s;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+            .custom-collapse-header.active, .custom-collapse-header:hover {
+                background-color: #ddd;
+            }
+
+        .custom-collapse-content {
+            padding: 0 18px;
+            max-height: 0; 
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            background-color: white;
+            text-align: left;
+        }
+
+            .custom-collapse-content.expanded {
+                padding: 10px 18px; 
+            }
+
+            .custom-collapse-content p {
+                margin: 10px 0;
+            }
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="item item1">
+            <h2>Відображення набору об'єктів "Collapse" (Варіант 10)</h2>
+        </div>
+
+        <div class="item item2">
+            <p>Фентезі – це жанр, де магія оживає на сторінках книг.</p>
+            <img src="tolkin.jpg">
+            <p>Однією з найпопулярніших серій є "Володар Перснів" Дж.Р.Р. Толкіна.</p>
+        </div>
+
+        <div class="item item3">
+            <div id="collapse-viewer-container">
+                <h3>Завантажені Collapse Об'єкти</h3>
+                <div id="collapse-output">
+                    <p>Завантаження даних із сервера...</p>
+                </div>
+                <p id="last-update-time" style="margin-top: 15px; font-size: 0.9em;">Останнє оновлення: </p>
+            </div>
+        </div>
+
+        <div class="item item4">
+            <nav>
+                <ul>
+                    <li><a href="collapse_creator.html">Створення Collapse (Сторінка 1)</a></li>
+                    <li><a href="collapse_viewer.html">Перегляд Collapse (Сторінка 2)</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="item item5">
+            <p>"Гра Престолів" Джорджа Р.Р. Мартіна – це темне фентезі.</p>
+            <img src="GameOfThrones.jpg">
+            <p>Політичні інтриги та боротьба за залізний трон.</p>
+        </div>
+        <div class="item item6">
+            <p>"Відьмак" Анджея Сапковського – польська фентезі-класика.</p>
+            <img src="witcher.jpg">
+            <p>Історія про Геральта з Рівії – професійного мисливця на чудовиськ.</p>
+        </div>
+
+        <div class="item item7">
+            <p>Футер сайту. Контактна інформація та копірайт.</p>
+        </div>
+    </div>
+
+    <script>
+    function toggleCollapse(contentId, headerElement) {
+      const content = document.getElementById(contentId);
+
+      headerElement.classList.toggle("active");
+      content.classList.toggle("expanded"); 
+
+      if (content.style.maxHeight) {
+        content.style.maxHeight = null;
+      } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+      }
+    }
+
+    function createCollapseHTML(data) {
+      if (!Array.isArray(data) || data.length === 0) {
+        return '<p style="color: blue;">Набір Collapse об\'єктів не знайдено. Створіть їх на Сторінці 1.</p>';
+      }
+
+      let html = '';
+      data.forEach((item, index) => {
+        const contentId = `collapse-content-${index}`;
+        html += `
+          <button class="custom-collapse-header" onclick="toggleCollapse('${contentId}', this)">
+            ${item.title}
+          </button>
+          <div id="${contentId}" class="custom-collapse-content">
+            <p>${item.content}</p>
+          </div>
+        `;
+      });
+      return html;
+    }
+
+    function loadAndRenderCollapse() {
+      fetch('get_data.php')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const outputDiv = document.getElementById('collapse-output');
+          outputDiv.innerHTML = createCollapseHTML(data);
+          document.getElementById('last-update-time').textContent = 'Останнє оновлення: ' + new Date().toLocaleTimeString();
+        })
+        .catch(error => {
+          console.error('Failed to load collapse data:', error);
+          document.getElementById('collapse-output').innerHTML = '<p style="color: red;">Помилка завантаження даних із сервера. Перевірте `get_data.php`.</p>';
+          document.getElementById('last-update-time').textContent = 'Помилка завантаження: ' + new Date().toLocaleTimeString();
+        });
+    }
+
+    const updateInterval = 5000; 
+
+    loadAndRenderCollapse();
+
+    setInterval(loadAndRenderCollapse, updateInterval);
+    </script>
+</body>
+</html>
